@@ -1,0 +1,67 @@
+# Trading Configuration
+trading:
+  initial_capital: 1000
+  max_position_size: 100
+  max_positions: 5
+  scan_interval_seconds: 60
+
+# ML Filter Settings
+ml_filter:
+  max_risk_score: 0.40
+  model_path: "data/models/rug_detector.pkl"
+  retrain_interval_days: 7
+  min_training_samples: 500
+
+# Strategy Configurations
+strategies:
+  momentum:
+    enabled: true
+    volume_threshold: 3.0
+    breakout_threshold: 1.05
+
+  dip_buyer:
+    enabled: true
+    min_token_age_days: 30
+    dip_range: [-40, -20]
+
+  social:
+    enabled: false  # Optional - requires Twitter/Telegram APIs
+    min_social_score: 70
+
+  smart_money:
+    enabled: false  # Optional - requires blockchain monitoring
+    min_wallet_winrate: 0.65
+
+# Risk Management
+risk_management:
+  max_loss_per_trade_pct: 15
+  max_drawdown_pct: 30
+  stop_trading_on_drawdown: true
+  time_based_exit_hours: 12
+  trailing_stop_activation_pct: 20
+  trailing_stop_distance_pct: 10
+
+# Supported Chains
+chains:
+  - solana
+  - ethereum
+  - base
+
+# Notification Settings (optional)
+notifications:
+  discord_webhook: ""  # Set in .env file
+  telegram_bot_token: ""  # Set in .env file
+  telegram_chat_id: ""  # Set in .env file
+  enabled: false
+
+# Database Configuration
+database:
+  type: "sqlite"
+  path: "data/trading.db"
+
+# Logging
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR
+  file_path: "logs/trading.log"
+  max_bytes: 10485760  # 10MB
+  backup_count: 5
