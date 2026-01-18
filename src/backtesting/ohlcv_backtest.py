@@ -379,8 +379,8 @@ class OHLCVBacktestEngine:
                     f"Trades: {len(self.portfolio.trades)}"
                 )
 
-        # Close remaining positions at final price
-        self._close_all_positions()
+        # Close remaining positions at final price (use last timestamp)
+        self._close_all_positions(current_time=timestamps[-1])
 
         # Calculate results
         result = self._calculate_results(timestamps[0], timestamps[-1], len(timestamps))
@@ -452,7 +452,8 @@ class OHLCVBacktestEngine:
                     # Open position
                     position = self.portfolio.open_position(
                         signal,
-                        ml_risk_score=token_data.get('ml_risk_score', 0.0)
+                        ml_risk_score=token_data.get('ml_risk_score', 0.0),
+                        current_time=current_time
                     )
 
                     if position:
@@ -520,7 +521,8 @@ class OHLCVBacktestEngine:
                         position.id,
                         exit_reason,
                         slipped_exit,
-                        partial_pct=0.5  # Close 50%
+                        partial_pct=0.5,  # Close 50%
+                        current_time=current_time
                     )
                     # Activate trailing stop
                     position.update_trailing_stop(exit_price, trail_pct=0.10)
@@ -528,7 +530,8 @@ class OHLCVBacktestEngine:
                     trade = self.portfolio.close_position(
                         position.id,
                         exit_reason,
-                        slipped_exit
+                        slipped_exit,
+                        current_time=current_time
                     )
 
                 if trade:
@@ -547,13 +550,14 @@ class OHLCVBacktestEngine:
                 if high > position.entry_price and position.partial_exits > 0:
                     position.update_trailing_stop(high, trail_pct=0.10)
 
-    def _close_all_positions(self):
+    def _close_all_positions(self, current_time: datetime):
         """Close all remaining positions at end of backtest"""
         for position in list(self.portfolio.positions.values()):
             self.portfolio.close_position(
                 position.id,
                 ExitReason.TIME_EXIT,
-                position.current_price
+                position.current_price,
+                current_time=current_time
             )
 
     def _calculate_results(

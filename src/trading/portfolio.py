@@ -80,7 +80,8 @@ class PortfolioManager:
         self,
         signal: Signal,
         ml_risk_score: float,
-        actual_price: Optional[float] = None
+        actual_price: Optional[float] = None,
+        current_time: Optional[datetime] = None
     ) -> Optional[Position]:
         """
         Open a new position based on signal
@@ -89,6 +90,7 @@ class PortfolioManager:
             signal: Trading signal
             ml_risk_score: ML model risk score
             actual_price: Actual execution price (or use signal price)
+            current_time: Current time (for backtesting) or None for live trading
 
         Returns:
             Position if opened, None if rejected
@@ -134,7 +136,7 @@ class PortfolioManager:
             stop_loss=signal.stop_loss,
             take_profit_1=signal.take_profit_1,
             take_profit_2=signal.take_profit_2,
-            entry_time=datetime.utcnow(),
+            entry_time=current_time if current_time else datetime.utcnow(),
             ml_risk_score=ml_risk_score
         )
 
@@ -158,7 +160,8 @@ class PortfolioManager:
         position_id: str,
         exit_reason: ExitReason,
         exit_price: Optional[float] = None,
-        partial_pct: float = 1.0
+        partial_pct: float = 1.0,
+        current_time: Optional[datetime] = None
     ) -> Optional[Trade]:
         """
         Close a position
@@ -168,6 +171,7 @@ class PortfolioManager:
             exit_reason: Reason for exit
             exit_price: Exit price (or use current price)
             partial_pct: Percentage of position to close (1.0 = full)
+            current_time: Current time (for backtesting) or None for live trading
 
         Returns:
             Trade record if closed, None if position not found
@@ -199,7 +203,7 @@ class PortfolioManager:
             exit_price=actual_exit,
             size_usd=exit_size,
             entry_time=position.entry_time,
-            exit_time=datetime.utcnow(),
+            exit_time=current_time if current_time else datetime.utcnow(),
             exit_reason=exit_reason,
             pnl_usd=pnl_usd,
             pnl_pct=pnl_pct,
